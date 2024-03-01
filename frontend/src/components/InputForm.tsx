@@ -1,12 +1,11 @@
-import axios, { AxiosResponse } from "axios";
-import { Button, HStack, Input } from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
-import { Task, UpdateTaskData } from "../schema";
 import React from "react";
+import axios, { AxiosResponse } from "axios";
+import { Button, TextField, Box } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { Task, UpdateTaskData } from "../schema";
 
 type Props = {
   tasks: Array<Task>;
-  
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
 };
 
@@ -15,7 +14,7 @@ const InputForm: React.FC<Props> = ({ tasks, setTasks }) => {
     const res: AxiosResponse | null = await axios
       .post("http://localhost:8000/tasks", data)
       .catch(() => {
-        alert("some error");
+        alert("Some error occurred");
         return null;
       });
     if (!res) {
@@ -25,23 +24,29 @@ const InputForm: React.FC<Props> = ({ tasks, setTasks }) => {
     setTasks(newTasks);
   };
 
-  const onSubmitHandler = async (e: any) => {
+  const onSubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const target = e.currentTarget;
-    const inputEl = target.title;
-    await addTask({ title: inputEl.value });
-    inputEl.value = "";
+    const target = e.target as typeof e.target & {
+      title: { value: string };
+    };
+    await addTask({ title: target.title.value });
+    target.title.value = "";
   };
 
   return (
-    <form onSubmit={onSubmitHandler} style={{ width: "100%" }}>
-      <HStack w="100%">
-        <Input placeholder="Enter your task title" w="100%" name="title" />
-        <Button type="submit">
+    <Box component="form" onSubmit={onSubmitHandler} sx={{ width: "100%" }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+        <TextField
+          fullWidth
+          name="title"
+          label="Enter your task title"
+          variant="outlined"
+        />
+        <Button type="submit" sx={{ p: '10px', minWidth: '45px' }}>
           <AddIcon />
         </Button>
-      </HStack>
-    </form>
+      </Box>
+    </Box>
   );
 };
 
